@@ -10,15 +10,16 @@ function App() {
   //console.log(initialEmails)
   
   const [emails, setEmails] = useState(initialEmails)
-
-
+  const starredEmails = emails.filter((email) => email.starred === true)
+  const emailsUnread = emails.filter((email) => email.read === false)
+  const [unreadEmails, setUnreadEmail] = useState(emailsUnread)
+  const [showRead, setShowRead] = useState(false)
+  
   const toggleStarred = (target) => {
     const updateEmail = emails.map((email) => 
       email.id === target ? { ...email, starred: !email.starred} : email
     )
     setEmails(updateEmail)
-
-    console.log(updateEmail)
   }
 
   const toggleRead = (target) => {
@@ -26,8 +27,13 @@ function App() {
       email.id === target.id ? { ...email, read: !email.read} : email
     )
     setEmails(updateEmail)
-    
-    console.log(updateEmail)
+
+  }
+
+  const toggleUnreadOnly = () => {
+    setShowRead(!showRead)
+    setUnreadEmail(emailsUnread) 
+    return showRead
   }
 
 
@@ -41,14 +47,14 @@ function App() {
             // onClick={() => {}}
           >
             <span className="label">Inbox</span>
-            <span className="count">{emails.length}</span>
+            <span className="count">{emailsUnread.length}</span>
           </li>
           <li
             className="item"
             onClick={() => {}}
           >
             <span className="label">Starred</span>
-            <span className="count"></span>
+            <span className="count">{starredEmails.length}</span>
           </li>
 
           <li className="item toggle">
@@ -56,14 +62,15 @@ function App() {
             <input
               id="hide-read"
               type="checkbox"
-              checked={false}
-              onChange={() => {}}
+              checked={showRead}
+              onChange={() => {toggleUnreadOnly()}}
             />
           </li>
         </ul>
       </nav>
       <main className="emails">
-        {emails.map((email) => (
+        {
+        showRead ? unreadEmails.map((email) => (
            <li key={email.id} className={`email ${email.read ? 'read' : 'unread'}`}>
            <div className='select'>
              <input className='select-checkbox'
@@ -83,7 +90,27 @@ function App() {
              {email.title}
            </div>
          </li>
-        ))}
+        )): emails.map((email) => (
+          <li key={email.id} className={`email ${email.read ? 'read' : 'unread'}`}>
+          <div className='select'>
+            <input className='select-checkbox'
+            type='checkbox'
+            onClick={() => toggleRead(email)}/>
+          </div>
+          <div className='star'>
+             <input className={`star-checkbox`}
+             type='checkbox'
+             onChange={() => toggleStarred(email.id)}
+             checked={email.starred}/>
+          </div>
+          <div className='sender'>
+            {email.sender}
+          </div>
+          <div className='title'>
+            {email.title}
+          </div>
+        </li>
+        )) }
       </main>
     </div>
   )
